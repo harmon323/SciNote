@@ -1,6 +1,5 @@
-import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:file_picker/file_picker.dart';
 
 void main() {
   runApp(const MyApp());
@@ -30,23 +29,19 @@ class _HomePageState extends State<HomePage> {
     openFilePicker(); // アプリ起動時にファイルダイアログを開く
   }
 
-  // プラットフォームに応じてファイルダイアログを開く
+  // ファイルダイアログを開く
   void openFilePicker() async {
-    if (Platform.isIOS) {
-      try {
-        // MethodChannelを使用して、iOSのネイティブコードにファイル選択を依頼
-        final String? filePath =
-            await MethodChannel('file_picker_channel').invokeMethod('pickFile');
-        if (filePath != null) {
-          print("iOS File picked: $filePath");
-        } else {
-          print("No file selected.");
-        }
-      } on PlatformException catch (e) {
-        print("Error: ${e.message}");
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+      if (result != null) {
+        String? filePath = result.files.single.path;
+        print("File picked: $filePath");
+      } else {
+        print("No file selected.");
       }
-    } else {
-      print("This feature is only available on iOS.");
+    } catch (e) {
+      print("Error: $e");
     }
   }
 
